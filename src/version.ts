@@ -1,9 +1,11 @@
 import { spawn } from "node:child_process";
 import { Octokit } from "octokit";
+import { info, warn } from "./log.js";
 
 const octokit = new Octokit();
 const defaultVersion = "1.29.0";
 const pattern = /^\d+\.\d+\.\d+$/;
+let expectedOk = true;
 let expected: string;
 
 export async function initExpectedVersion(options: unknown) {
@@ -16,7 +18,7 @@ export async function initExpectedVersion(options: unknown) {
 }
 
 export function logExpectedVersion() {
-	console.log(`[info] expected glualint version is \`${expected}\``);
+	info(`expected glualint version is \`${expected}\``);
 }
 
 async function fetchExpectedVersion(options: unknown): Promise<string> {
@@ -32,29 +34,34 @@ function readExpectedVersion(options: unknown): string | undefined {
 	return version;
 }
 
-async function fetchLatestVersion(): Promise<string> {
+async function fetchLatestVersion(): Promise<string | undefined> {
 	try {
 		const params = { owner: "FPtje", repo: "GLuaFixer" };
-		console.log("[info] expected version set to `latest`, fetching from github");
+		info("expected version set to `latest`, fetching from github");
 		const { data } = await octokit.rest.repos.getLatestRelease(params);
-		console.log(`[info] latest glualint version is \`${data.tag_name}\``);
+		info(`latest glualint version is \`${data.tag_name}\``);
 		return data.tag_name;
 	} catch {
-		throw new Error("failed to fetch latest glualint version from GitHub");
+		return;
 	}
 }
 
 export async function validateInstalledVersion() {
 	const installed = await fetchInstalledVersion();
-	if (expected != installed) {
-		throw new Error(`glualint version mismatch: expected \`${expected}\`, but found \`${installed}\``);
+	if (expected == installed) {
+		expectedOk = true;
+	} else if (expectedOk) {
+		warn(`installed glualint version \`${installed}\` does not match expected version \`${expected}\``, true);
+		expectedOk = false;
 	}
 }
 
 function fetchInstalledVersion(): Promise<string> {
 	return new Promise((resolve, reject) => {
 		const child = spawn("glualint", ["--version"]);
-		child.on("error", reject);
+		child.on("error", err => {
+			reject(new Error(`failed to spawn glualint process: ${err.message}`));
+		});
 
 		let output = "";
 		child.stdout.on("data", data => output += data.toString());

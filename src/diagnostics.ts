@@ -4,6 +4,7 @@ import { spawn } from "node:child_process";
 import { basename, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { getConfigPath } from "./config.js";
+import { info, log } from "./log.js";
 
 export function fetchDiagnostics(document: TextDocument): Promise<Diagnostic[]> {
 	return new Promise((resolve, reject) => {
@@ -12,7 +13,9 @@ export function fetchDiagnostics(document: TextDocument): Promise<Diagnostic[]> 
 		if (configPath) options.push("--config", configPath);
 		const cwd = dirname(fileURLToPath(document.uri));
 		const child = spawn("glualint", options, { cwd });
-		child.on("error", reject);
+		child.on("error", err => {
+			reject(new Error(`failed to spawn glualint process: ${err.message}`));
+		});
 
 		let output = "";
 		let diagnostics: Diagnostic[] = [];
@@ -108,13 +111,13 @@ function isUnnecessary(message: string): boolean {
 function logFileHeader(fileName: string, errors: Diagnostic[], warnings: Diagnostic[]) {
 	const errorsLabel = errors.length == 1 ? "error" : "errors";
 	const warningsLabel = warnings.length == 1 ? "warning" : "warnings";
-	console.log(`[info] ${fileName}: ${errors.length} ${errorsLabel}, ${warnings.length} ${warningsLabel}`);
+	info(`${fileName}: ${errors.length} ${errorsLabel}, ${warnings.length} ${warningsLabel}`);
 }
 
 function logDiagnostics(diagnostics: Diagnostic[]) {
 	for (const diagnostic of diagnostics) {
 		const { message, range: { start, end } } = diagnostic;
 		const severity = diagnostic.severity == DiagnosticSeverity.Error ? "error" : "warning";
-		console.log(`| <${severity}> ${message} (${start.line}:${start.character}, ${end.line}:${end.character})`);
+		log(`| <${severity}> ${message} (${start.line}:${start.character}, ${end.line}:${end.character})`);
 	}
 }

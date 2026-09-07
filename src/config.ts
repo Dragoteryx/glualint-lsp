@@ -1,3 +1,5 @@
+import { info } from "./log.js";
+
 let configPath: string | undefined;
 
 export function getConfigPath(): string | undefined {
@@ -10,9 +12,9 @@ export function initConfigPath(options: unknown) {
 
 export function logConfigPath() {
 	if (configPath) {
-		console.log(`[info] using config file at \`${configPath}\``);
+		info(`using config file at \`${configPath}\``);
 	} else {
-		console.log("[info] no config file specified");
+		info("no config file specified");
 	}
 }
 

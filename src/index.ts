@@ -6,8 +6,9 @@ import { initExpectedVersion, validateInstalledVersion, logExpectedVersion } fro
 import { initConfigPath, logConfigPath } from "./config.js";
 import { fetchDiagnostics } from "./diagnostics.js";
 import { formatDocument } from "./formatting.js";
+import { error } from "./log.js";
 
-const connection = createConnection();
+export const connection = createConnection();
 const documents = new TextDocuments(TextDocument);
 let glualintOk = true;
 
@@ -52,15 +53,13 @@ connection.onDocumentFormatting(async ({ textDocument }) => {
 	}
 });
 
-function errorMessage(error: unknown) {
-	return error instanceof Error ? error.message : String(error);
+function errorMessage(err: unknown) {
+	return err instanceof Error ? err.message : String(err);
 }
 
-function handleError(error: unknown) {
+function handleError(err: unknown) {
 	if (glualintOk) {
-		const message = errorMessage(error);
-		connection.window.showErrorMessage(message);
-		connection.console.error(`[error] ${message}`);
+		error(errorMessage(err), true);
 		glualintOk = false;
 	}
 }
