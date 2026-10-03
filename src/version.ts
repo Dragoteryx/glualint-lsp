@@ -3,7 +3,7 @@ import { Octokit } from "octokit";
 import { info, warn } from "./log.js";
 
 const octokit = new Octokit();
-const defaultVersion = "1.29.0";
+const defaultVersion = "1.30.0";
 const pattern = /^\d+\.\d+\.\d+$/;
 let expectedOk = true;
 let expected: string;
