@@ -1,7 +1,7 @@
 {
-  "name": "glualint-ls",
-  "version": "0.4.1",
-  "description": "Language server wrapper for glualint.",
+  "name": "glualint-lsp",
+  "version": "0.1.0",
+  "description": "LSP wrapper for glualint.",
   "keywords": [
     "glua",
     "gmod",
@@ -14,19 +14,19 @@
   ],
   "license": "MIT",
   "author": "Dragoteryx",
-  "homepage": "https://github.com/Dragoteryx/glualint-ls#readme",
+  "homepage": "https://github.com/Dragoteryx/glualint-lsp#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Dragoteryx/glualint-ls.git"
+    "url": "git+https://github.com/Dragoteryx/glualint-lsp.git"
   },
   "bugs": {
-    "url": "https://github.com/Dragoteryx/glualint-ls/issues"
+    "url": "https://github.com/Dragoteryx/glualint-lsp/issues"
   },
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
-    "glualint-ls": "dist/index.js"
+    "glualint-lsp": "dist/index.js"
   },
   "files": [
     "dist"
